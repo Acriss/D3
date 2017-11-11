@@ -1,0 +1,66 @@
+<div id="root"></div>
+<style>
+#root {
+    width: 960px;
+    height: 500px;
+}
+</style>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+<script type="text/babel">
+
+
+class Element extends React.Component {
+    componentDidMount() {
+        var mouse = [480, 250],
+            count = 0;
+
+        var svg = d3.select("#" + this.props.id).append("svg")
+            .attr("width", 960)
+            .attr("height", 500);
+        var g = svg.selectAll("g")
+            .data(d3.range(25))
+            .enter().append("g")
+            .attr("transform", "translate(" + mouse + ")");
+
+        g.append("circle")
+            .attr("cx", 1)
+            .attr("cy", 1)
+            .attr("r", 10)
+            .attr("transform", function(d, i) { return "scale(" + (1 - d / 25) * 20 + ")"; })
+            .style("fill", function(d, i) { return d3.interpolateCool(d/25) });
+
+        g.datum(function(d) {
+          return {center: mouse.slice(), angle: 0};
+        });
+
+        svg.on("mousemove", function() {
+          mouse = d3.mouse(this);
+        });
+
+        d3.timer(function() {
+            count++;
+            g.attr("transform", function(d, i) {
+                d.center[0] += (mouse[0] - d.center[0]) / (i + 5);
+                d.center[1] += (mouse[1] - d.center[1]) / (i + 5);
+                d.angle += Math.sin((count + i) / 10) * 4;
+                return "translate(" + d.center + ")rotate(" + d.angle + ")";
+            });
+        });
+    }
+
+
+    render() {
+        return(
+            <div id={this.props.id}>
+            </div>
+        )
+    }
+}
+
+ReactDOM.render(<Element id={"element"}/>, document.getElementById('root'))
+
+</script>
